@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#101a2b" />
+<title>台灣人猜謎所｜你敢猜嗎？</title>
+<style>
+  :root{
+    --bg:#0b1220;--panel:#121e31;--panel2:#17263d;--line:rgba(190,210,235,.13);
+    --text:#f4f7fb;--muted:#9cacbf;--gold:#f4c66b;--gold2:#ffe3a1;--teal:#70d6c5;
+    --red:#ff8585;--shadow:0 22px 60px rgba(0,0,0,.34);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif;
+    background:radial-gradient(ellipse at 12% 0%,rgba(42,91,124,.28),transparent 40%),radial-gradient(ellipse at 92% 20%,rgba(151,94,40,.15),transparent 35%),var(--bg)}
+  button,input{font:inherit}
+  .wrap{max-width:1180px;margin:auto;padding:24px 22px 48px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:25px}
+  .brand{display:flex;align-items:center;gap:13px}
+  .brand-mark{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:25px;background:linear-gradient(145deg,#ffe2a1,#d49a3d);color:#38230b;box-shadow:0 8px 25px #d99b3b38}
+  .brand h1{font-size:21px;letter-spacing:.06em;margin:0 0 3px}.brand small{color:var(--muted);letter-spacing:.17em;font-size:10px;font-weight:800}
+  .header-right{display:flex;align-items:center;gap:9px}
+  .pill{padding:9px 13px;border:1px solid var(--line);border-radius:999px;color:#c6d2e1;background:#ffffff08;font-size:12px}
+  .pill strong{color:var(--gold2);font-size:14px;margin-left:5px}
+  .intro{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 15px}
+  .intro h2{font-size:clamp(25px,4vw,36px);margin:0 0 7px;letter-spacing:.025em}.intro p{margin:0;color:var(--muted);font-size:14px}
+  .round-label{color:var(--gold2);font-size:12px;letter-spacing:.12em;font-weight:800;white-space:nowrap}
+  .categories{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 17px}
+  .cat{cursor:pointer;color:#b8c5d5;background:#ffffff08;border:1px solid var(--line);padding:9px 14px;border-radius:999px;font-size:13px;transition:.2s}
+  .cat:hover{border-color:#e7bd6c88;color:white}.cat.active{background:linear-gradient(135deg,#f6d58f,#d6a04a);color:#33230e;border-color:transparent;font-weight:800}
+  .game-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(350px,.88fr);gap:17px;align-items:stretch}
+  .panel{background:linear-gradient(155deg,rgba(24,39,61,.97),rgba(15,26,43,.98));border:1px solid var(--line);border-radius:23px;box-shadow:var(--shadow);overflow:hidden}
+  .photo-panel{padding:15px}
+  .photo-head{display:flex;justify-content:space-between;align-items:center;padding:3px 4px 13px;gap:10px}
+  .eyebrow{font-size:11px;color:#aabbd0;letter-spacing:.13em;font-weight:800}
+  .source-chip{font-size:10px;color:#a7b7c8;border:1px solid var(--line);border-radius:999px;padding:6px 9px}
+  .photo-stage{position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#233d54,#18293e 60%,#604b32);aspect-ratio:16/10;min-height:250px;display:grid;place-items:center}
+  .photo-stage img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;filter:blur(27px);transform:scale(1.13);transition:filter .8s ease,transform .8s ease;opacity:0}
+  .photo-stage img.loaded{opacity:1}
+  .photo-stage:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,10,18,.1),transparent 35%,rgba(4,10,18,.42));pointer-events:none}
+  .photo-placeholder{position:relative;z-index:1;text-align:center;color:#d9e1eb;padding:24px}
+  .photo-placeholder .emoji{font-size:52px;display:block;margin-bottom:12px;filter:drop-shadow(0 8px 12px #0005)}
+  .photo-placeholder p{font-size:13px;color:#c2cede;margin:0}
+  .photo-overlay{position:absolute;z-index:2;left:14px;right:14px;bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:#fff;text-shadow:0 1px 5px #000}
+  .clarity{display:flex;gap:4px;align-items:center}.clarity i{width:20px;height:4px;border-radius:5px;background:#ffffff55}.clarity i.on{background:var(--gold2)}
+  .photo-foot{display:flex;justify-content:space-between;gap:10px;color:#91a2b8;font-size:11px;padding:12px 3px 0}
+  .quiz-panel{padding:22px 22px 18px;display:flex;flex-direction:column;min-height:100%}
+  .quiz-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:15px}
+  .quiz-title{font-size:17px;font-weight:800}.attempt-count{font-size:12px;color:var(--gold2)}
+  .lives{display:flex;gap:6px;margin:0 0 18px}.life{height:6px;flex:1;background:#ffffff14;border-radius:99px;overflow:hidden}.life.on{background:linear-gradient(90deg,#f1c36d,#ffe6ad)}
+  .clue-box{border:1px solid var(--line);border-radius:15px;padding:15px 15px 13px;background:rgba(255,255,255,.035);margin-bottom:15px}
+  .clue-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}
+  .clue-heading strong{font-size:12px;color:var(--teal);letter-spacing:.08em}
+  .clue-heading span{font-size:10px;color:#8597ad}
+  .clue-list{display:grid;gap:9px;min-height:103px}
+  .clue{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.65;color:#dce5ef;animation:rise .3s ease both}
+  .clue-num{flex:0 0 20px;width:20px;height:20px;border-radius:7px;background:#72d7c51c;color:var(--teal);display:grid;place-items:center;font-size:10px;font-weight:800;margin-top:1px}
+  .hidden-clue{color:#66788e;font-size:12px;padding:3px 0 3px 29px}
+  @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  .guess-label{font-size:12px;color:#aab9ca;font-weight:700;margin:2px 0 8px}
+  .guess-form{display:flex;gap:8px}
+  .guess-form input{flex:1;min-width:0;background:#0c1728;border:1px solid #ffffff1b;border-radius:12px;padding:13px 14px;color:white;outline:none;transition:.2s}
+  .guess-form input:focus{border-color:#e8bd6d;box-shadow:0 0 0 3px #e8bd6d1c}.guess-form input::placeholder{color:#687b91}
+  .btn{border:0;border-radius:12px;cursor:pointer;font-weight:800;transition:transform .15s,filter .15s}.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}.btn:active{transform:translateY(0)}
+  .btn-primary{background:linear-gradient(135deg,#ffe5a8,#dca64f);color:#34230d;padding:0 20px;min-width:94px}
+  .btn-secondary{background:#ffffff0b;color:#d4deea;border:1px solid var(--line);padding:10px 14px}
+  .feedback{font-size:12px;min-height:24px;padding:9px 2px 0;color:#9db0c5}.feedback.bad{color:#ff9a9a}.feedback.good{color:#8be3c9}
+  .wrong-list{display:flex;flex-wrap:wrap;gap:6px;min-height:27px;margin-bottom:11px}.wrong-tag{font-size:11px;color:#ffb4b4;background:#ff777714;border:1px solid #ff777727;padding:5px 8px;border-radius:999px}
+  .quiz-actions{display:flex;gap:8px;margin-top:auto;padding-top:12px}.quiz-actions .btn{font-size:12px}
+  .result{margin-top:17px;border-radius:17px;border:1px solid #e6bd6a55;background:linear-gradient(135deg,#e8b85b18,#ffffff05);padding:16px;display:none;animation:rise .35s ease both}
+  .result.show{display:block}.result-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:6px}.result-label{color:var(--gold2);font-size:11px;font-weight:900;letter-spacing:.12em}.result-status{font-size:11px;color:var(--teal)}
+  .answer{font-size:24px;font-weight:900;margin:3px 0 8px}.wiki-extract{color:#c4d0df;font-size:12px;line-height:1.8;margin:0 0 12px}
+  .similar-title{font-size:11px;color:var(--teal);font-weight:900;letter-spacing:.1em;margin:11px 0 7px}.tag-row{display:flex;gap:6px;flex-wrap:wrap}.similar-tag{font-size:11px;border:1px solid #70d6c533;background:#70d6c511;color:#b9f1e7;padding:5px 8px;border-radius:999px}
+  .related-text{font-size:12px;color:#b7c6d7;line-height:1.7;margin-top:8px}
+  .result-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}.result-links a{font-size:11px;color:var(--gold2);text-decoration:none;border-bottom:1px solid #f4c66b66;padding-bottom:2px}.result-links a:hover{color:white}
+  .bottom-row{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:18px 2px 0;color:#8395aa;font-size:11px;flex-wrap:wrap}
+  .loading{display:inline-flex;align-items:center;gap:7px;color:#cad5e2}.spinner{width:13px;height:13px;border:2px solid #ffffff33;border-top-color:var(--gold2);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#1c2d43;border:1px solid var(--line);padding:11px 16px;border-radius:12px;color:#eaf0f7;font-size:12px;box-shadow:var(--shadow);transition:.25s;z-index:20}.toast.show{opacity:1;transform:translate(-50%,0)}
+  footer{text-align:center;color:#62748b;font-size:10px;margin-top:28px;line-height:1.8}
+  @media(max-width:850px){.game-grid{grid-template-columns:1fr}.quiz-panel{min-height:unset}.photo-stage{aspect-ratio:16/9}}
+  @media(max-width:520px){.wrap{padding:17px 13px 35px}.brand h1{font-size:17px}.brand-mark{width:40px;height:40px}.header-right .pill:first-child{display:none}.intro{align-items:start;flex-direction:column;gap:9px}.photo-panel{padding:10px}.photo-stage{min-height:205px}.quiz-panel{padding:18px 15px 15px}.guess-form input{padding:12px 11px}.btn-primary{min-width:78px;padding:0 12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="brand-mark">🇹🇼</div>
+      <div><h1>台灣人猜謎所</h1><small>TAIWAN GUESSING CLUB</small></div>
+    </div>
+    <div class="header-right">
+      <div class="pill">本局答對 <strong id="score">0</strong></div>
+      <div class="pill">最高紀錄 <strong id="best">0</strong></div>
+    </div>
+  </header>
+
+  <section class="intro">
+    <div><h2>這到底是什麼？</h2><p>看圖、讀線索，五次機會猜出最有台灣味的事物！</p></div>
+    <div class="round-label" id="roundLabel">ROUND 01</div>
+  </section>
+
+  <nav class="categories" aria-label="題目分類">
+    <button class="cat active" data-category="全部">全部題目</button>
+    <button class="cat" data-category="美食小吃">🍜 美食小吃</button>
+    <button class="cat" data-category="風景地標">🏞️ 風景地標</button>
+    <button class="cat" data-category="交通生活">🚇 交通生活</button>
+    <button class="cat" data-category="民俗文化">🏮 民俗文化</button>
+  </nav>
+
+  <main class="game-grid">
+    <section class="panel photo-panel">
+      <div class="photo-head"><span class="eyebrow">🔎 神秘圖片｜越猜越清楚</span><span class="source-chip" id="sourceState">正在載入題目</span></div>
+      <div class="photo-stage" id="photoStage">
+        <img id="questionImage" alt="猜謎圖片" />
+        <div class="photo-placeholder" id="photoPlaceholder"><span class="emoji">🧩</span><p>正在從網路取得本題圖片…</p></div>
+        <div class="photo-overlay"><span id="photoStatus">圖片模糊中</span><span class="clarity" id="clarityBars"><i class="on"></i><i></i><i></i><i></i><i></i></span></div>
+      </div>
+      <div class="photo-foot"><span id="photoCategory">台灣限定題庫</span><span>圖片來源：維基百科／維基共享資源</span></div>
+    </section>
+
+    <section class="panel quiz-panel">
+      <div class="quiz-top"><span class="quiz-title">你來猜猜看！</span><span class="attempt-count" id="attemptText">還有 5 次機會</span></div>
+      <div class="lives" id="lives"><i class="life on"></i><i class="life on"></i><i class="life on"></i><i class="life on"></i><i class="life on"></i></div>
+
+      <div class="clue-box">
+        <div class="clue-heading"><strong>📜 漸進式文字線索</strong><span id="clueProgress">已公開 1 / 5 個線索</span></div>
+        <div class="clue-list" id="clueList"></div>
+      </div>
+
+      <form class="guess-form" id="guessForm">
+        <input id="guessInput" type="text" placeholder="輸入你猜的東西…" autocomplete="off" maxlength="35" aria-label="輸入答案" />
+        <button class="btn btn-primary" id="guessButton" type="submit">送出答案</button>
+      </form>
+      <div class="feedback" id="feedback" aria-live="polite">提示：可以猜地名、食物、交通工具或台灣特色物品。</div>
+      <div class="wrong-list" id="wrongList"></div>
+      <div class="quiz-actions"><button class="btn btn-secondary" id="giveUp">🙈 直接揭曉</button><button class="btn btn-secondary" id="nextButton" style="display:none;margin-left:auto">下一題 →</button></div>
+
+      <section class="result" id="result">
+        <div class="result-top"><span class="result-label">答案揭曉 ANSWER</span><span class="result-status" id="resultStatus">答對了！</span></div>
+        <div class="answer" id="answerTitle">答案</div>
+        <p class="wiki-extract" id="wikiExtract">正在整理百科資料…</p>
+        <div class="similar-title">這題和哪些事物有相同點？</div>
+        <div class="tag-row" id="similarTags"></div>
+        <div class="related-text" id="relatedText"></div>
+        <div class="result-links" id="resultLinks"></div>
+      </section>
+    </section>
+  </main>
+
+  <div class="bottom-row"><span>規則：每題 5 次機會；答錯會解鎖新線索、圖片也會逐漸變清楚。</span><span id="poolCount">題庫載入中</span></div>
+  <footer>百科文字與圖片於遊戲中即時向 Wikimedia 公開資料來源取得。各圖片仍依原始檔案頁的授權條款使用，請透過來源連結查看作者與授權資訊。</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const BANK = [
+  // 台灣美食小吃
+  {id:'boba',answer:'珍珠奶茶',aliases:['珍奶','波霸奶茶','珍珠奶茶'],wiki:'珍珠奶茶',category:'美食小吃',emoji:'🧋',clues:['它是台灣非常有代表性的飲料。','喝的時候，常常需要搭配一根比較粗的吸管。','裡面有一顆顆圓圓、QQ 的配料。','可以選甜度、冰塊，還有不同茶底。','它的名字同時包含一種茶飲和一種圓形配料。'],tags:['台灣手搖飲','夜市與飲料店','可調整甜度冰量'],common:'和冬瓜茶、青蛙下蛋等台灣飲品一樣，常見於手搖飲店，也能依個人喜好調整甜度與冰量。',related:['冬瓜茶','青蛙下蛋','水果茶']},
+  {id:'luwei',answer:'滷肉飯',aliases:['魯肉飯','肉燥飯'],wiki:'滷肉飯',category:'美食小吃',emoji:'🍚',clues:['它是台灣常見的平民美食。','通常會用碗盛裝，而且很適合配湯。','白飯上面會淋上香噴噴的醬汁和肉。','肉通常切得細碎，經過醬油等調味慢慢燉煮。','它是台灣小吃店很常見的「飯」類招牌。'],tags:['台灣庶民美食','米食料理','醬香滷煮'],common:'和肉圓、肉燥麵等台灣小吃一樣，重視醬香與家常滋味，是許多小吃店的日常餐點。',related:['肉燥麵','控肉飯','雞肉飯']},
+  {id:'beefnoodle',answer:'台灣牛肉麵',aliases:['牛肉麵','紅燒牛肉麵','清燉牛肉麵'],wiki:'臺灣牛肉麵',category:'美食小吃',emoji:'🍜',clues:['這是一種有湯、有主食的料理。','在台灣有許多店家會專門販售它。','常見紅燒與清燉兩種風味。','主角是牛肉，通常會搭配麵條與湯頭。','它的名稱直接說出了肉的種類和麵食。'],tags:['台灣麵食','湯麵料理','紅燒／清燉湯頭'],common:'和擔仔麵、切仔麵一樣，都是台灣常見麵食；各家店通常有自己的湯頭與配料特色。',related:['擔仔麵','切仔麵','榨菜肉絲麵']},
+  {id:'oyster',answer:'蚵仔煎',aliases:['蚵仔煎蛋','蚵仔煎餅'],wiki:'蚵仔煎',category:'美食小吃',emoji:'🦪',clues:['它常出現在台灣夜市。','主要食材來自海裡，外型常是一大片煎物。','煎的時候會加入蛋和粉漿。','上桌時常淋上橘紅色或甜鹹口味的醬。','名字裡有「蚵仔」，是一道台灣經典小吃。'],tags:['夜市小吃','海鮮料理','粉漿煎物'],common:'和蝦仁煎、花枝煎等小吃一樣，常以海鮮搭配蛋與粉漿煎製，再淋上特調醬汁。',related:['蝦仁煎','花枝煎','鐵板蚵']},
+  {id:'stinky',answer:'臭豆腐',aliases:['炸臭豆腐','麻辣臭豆腐'],wiki:'臭豆腐',category:'美食小吃',emoji:'🧈',clues:['它的名字很直接地形容了氣味。','常見於夜市或小吃攤。','可以炸，也可以煮成湯或鍋物。','外酥內嫩的炸法常搭配泡菜。','它是以發酵豆腐製作的料理。'],tags:['夜市小吃','豆製品','發酵風味'],common:'和豆干、豆花一樣以黃豆製品為基礎，但它最大的特色是發酵後形成的特殊氣味與風味。',related:['炸豆腐','麻辣鴨血','豆干']},
+  {id:'saltchicken',answer:'鹽酥雞',aliases:['鹹酥雞'],wiki:'鹽酥雞',category:'美食小吃',emoji:'🍗',clues:['它通常是現點現炸的台灣小吃。','買的時候常會問要不要加辣。','攤位常有九層塔、蒜頭等配料。','除了雞肉，也常能加點甜不辣、四季豆或薯條。','它的名稱有「鹽酥」，是夜市炸物代表。'],tags:['夜市炸物','台式點心','九層塔與胡椒'],common:'和甜不辣、地瓜薯條一樣，常在夜市炸物攤販售，能自由搭配配料與調味。',related:['甜不辣','炸魷魚','地瓜薯條']},
+  {id:'sausage',answer:'大腸包小腸',aliases:['大腸包小腸','糯米腸包香腸'],wiki:'大腸包小腸',category:'美食小吃',emoji:'🌭',clues:['它的名字聽起來像一個包住另一個。','常見於台灣夜市和路邊攤。','外層不是一般麵包，而是米製品。','裡面通常會放一條台式香腸。','它就是用糯米腸包著香腸的台灣小吃。'],tags:['夜市小吃','米食點心','炭烤香腸'],common:'和烤香腸、米腸一樣，常以炭烤或煎烤方式料理，帶有台式攤販的香氣。',related:['烤香腸','糯米腸','米血糕']},
+  {id:'tofu-dessert',answer:'豆花',aliases:['豆腐花','豆花冰'],wiki:'豆花',category:'美食小吃',emoji:'🥣',clues:['它是一種軟嫩的傳統甜品。','可以吃冰的，也可以吃熱的。','常見配料有花生、粉圓、紅豆或綠豆。','主要原料是黃豆，口感比一般豆腐更滑嫩。','它的名字只有兩個字，第一個字是「豆」。'],tags:['台灣甜品','黃豆製品','可自由加配料'],common:'和仙草、愛玉一樣，常作為台灣冰品甜品，可依季節搭配冰塊、糖水及各種配料。',related:['仙草','愛玉','粉圓冰']},
+  {id:'pineapplecake',answer:'鳳梨酥',aliases:['土鳳梨酥','鳳梨餅'],wiki:'鳳梨酥',category:'美食小吃',emoji:'🍍',clues:['它常被當作台灣伴手禮。','外面是烘烤過的金黃色糕餅。','裡面包著水果餡料。','傳統內餡會使用鳳梨，有些也會混搭冬瓜。','它的名字就是一種水果加上「酥」。'],tags:['台灣伴手禮','烘焙糕餅','水果內餡'],common:'和太陽餅、牛軋糖一樣，常被旅客買作伴手禮，也有許多店家推出不同口味與包裝。',related:['太陽餅','牛軋糖','蛋黃酥']},
+  {id:'sun-cake',answer:'太陽餅',aliases:['太陽餅'],wiki:'太陽餅',category:'美食小吃',emoji:'☀️',clues:['它是台灣中部很有代表性的糕餅。','外型通常是圓形、扁扁的。','外皮有多層酥鬆的口感。','內餡通常甜甜的，常見麥芽糖風味。','它的名字和天空中的一種天體有關。'],tags:['台中伴手禮','傳統糕餅','酥皮甜點'],common:'和鳳梨酥、老婆餅一樣，是台灣常見的傳統烘焙點心，也常出現在伴手禮店。',related:['鳳梨酥','老婆餅','綠豆椪']},
+  {id:'ba-wan',answer:'肉圓',aliases:['彰化肉圓','清蒸肉圓','油炸肉圓'],wiki:'肉圓',category:'美食小吃',emoji:'🥟',clues:['它是台灣很有代表性的小吃，各地做法不太一樣。','外皮通常帶有半透明、Q 彈的口感。','裡面包著肉餡，有時還會加筍丁。','有些地方用油炸，有些地方用蒸的。','它的名字有「肉」，外型像一顆圓圓的包餡點心。'],tags:['台灣地方小吃','米漿／地瓜粉外皮','包餡點心'],common:'和碗粿、米糕一樣，常以米或澱粉製成主體，各地有不同口感、醬汁與吃法。',related:['碗粿','米糕','水晶餃']},
+  {id:'danzi',answer:'擔仔麵',aliases:['台南擔仔麵','担仔麵'],wiki:'擔仔麵',category:'美食小吃',emoji:'🍜',clues:['它和台灣南部的城市有深厚關係。','份量通常不會太大，常當作小吃。','常見配料有肉燥、蝦子和香菜。','湯頭帶有蝦味，麵上會放肉燥。','它是台南很有名的一種麵食。'],tags:['台南小吃','台灣麵食','肉燥與蝦湯'],common:'和牛肉湯、蝦捲一樣，是台南飲食文化的代表之一，常以小份量與濃郁風味呈現。',related:['台南牛肉湯','蝦捲','虱目魚粥']},
+  {id:'shaved-ice',answer:'剉冰',aliases:['刨冰','台灣剉冰','八寶冰'],wiki:'刨冰',category:'美食小吃',emoji:'🍧',clues:['它是台灣夏天很受歡迎的消暑甜品。','主要材料是冰，而且通常會堆成一座小山。','上面可以放很多不同配料。','常見配料有芋圓、粉圓、紅豆、綠豆和水果。','它的名字是把冰「刨／剉」成細碎冰屑。'],tags:['台灣冰品','夏日消暑','多種配料'],common:'和豆花、仙草冰一樣，是台灣常見的夏日甜品，可依喜好搭配各種配料。',related:['豆花','仙草冰','芒果冰']},
+  {id:'three-cup',answer:'三杯雞',aliases:['三杯雞'],wiki:'三杯雞',category:'美食小吃',emoji:'🍗',clues:['它是一道香氣很濃的台式料理。','常見於熱炒店和家常餐桌。','料理時常會加入九層塔。','傳統調味常提到麻油、醬油和米酒。','它的菜名直接說出調味方式和主要食材。'],tags:['台式熱炒','九層塔香氣','麻油醬香'],common:'和宮保雞丁、客家小炒一樣，常見於台灣熱炒店，是適合多人共享的下飯菜。',related:['客家小炒','宮保雞丁','塔香蛤蜊']},
+  // 地標景點
+  {id:'taipei101',answer:'台北101',aliases:['臺北101','101大樓','台北一零一'],wiki:'台北101',category:'風景地標',emoji:'🏙️',clues:['它是台灣非常知名的城市地標。','它曾經是世界最高摩天大樓。','跨年時常有大量民眾聚集觀看它。','外觀像一節一節向上堆疊的竹子。','它的名字包含一個城市名稱和數字 101。'],tags:['台灣地標','摩天大樓','跨年煙火'],common:'和高雄85大樓一樣，都是台灣具有代表性的高樓地標，也常出現在城市天際線照片中。',related:['高雄85大樓','台中國家歌劇院','圓山大飯店']},
+  {id:'sunmoon',answer:'日月潭',aliases:['日月潭風景區'],wiki:'日月潭',category:'風景地標',emoji:'🌅',clues:['它位於台灣中部。','是一處很受歡迎的觀光景點。','可以搭船、騎自行車，也能欣賞湖景。','湖面景色會隨著天氣與時間變化。','它的名字同時有白天的太陽與夜晚的月亮。'],tags:['台灣湖泊景觀','中部觀光','環湖自行車'],common:'和阿里山、清境農場一樣，是台灣中部熱門旅遊景點，適合欣賞自然景色與安排戶外活動。',related:['阿里山','清境農場','向山遊客中心']},
+  {id:'alishan',answer:'阿里山',aliases:['阿里山森林遊樂區','阿里山國家森林遊樂區'],wiki:'阿里山',category:'風景地標',emoji:'🌲',clues:['它位於台灣中南部的山區。','很多人會為了日出、雲海和森林而前往。','有一條很有名的森林鐵路。','櫻花季時也吸引許多遊客。','它的名字有三個字，常和「日出」一起被提起。'],tags:['台灣山林','森林鐵路','日出與雲海'],common:'和太平山、溪頭一樣，以森林、山景與自然步道聞名，是台灣重要的山林觀光區。',related:['太平山','溪頭','奮起湖']},
+  {id:'jiufen',answer:'九份',aliases:['九份老街','新北九份'],wiki:'九份',category:'風景地標',emoji:'🏮',clues:['它位於新北市山城。','街道狹窄，常有階梯和紅燈籠。','很多人會去吃芋圓、逛老街。','夜晚從山坡往下看，燈火很有特色。','它的名字是兩個字，第一個字是數字九。'],tags:['新北山城','老街觀光','芋圓與茶樓'],common:'和十分、平溪一樣，都是新北市熱門山城旅遊路線，常見老街、鐵道與懷舊街景。',related:['十分老街','平溪老街','金瓜石']},
+  {id:'taroko',answer:'太魯閣',aliases:['太魯閣國家公園','太魯閣峽谷'],wiki:'太魯閣國家公園',category:'風景地標',emoji:'⛰️',clues:['它是台灣東部很有名的自然景觀。','以壯觀的峽谷和大理石岩壁聞名。','立霧溪流經這片地形。','景色有高聳山壁、隧道與步道。','它是國家公園，名稱常接在「峽谷」前面。'],tags:['台灣國家公園','峽谷地形','東部山景'],common:'和雪霸、玉山國家公園一樣，都是台灣重要的自然保育與山岳景觀區。',related:['玉山國家公園','雪霸國家公園','立霧溪']},
+  {id:'kaohsiung',answer:'駁二藝術特區',aliases:['駁二','駁二藝術特區'],wiki:'駁二藝術特區',category:'風景地標',emoji:'🎨',clues:['它位於台灣南部港都。','以前的倉庫空間被重新利用。','常有展覽、市集與大型裝置藝術。','附近可以看到港灣、輕軌和自行車。','答案的名字有「二」，而且是藝術文化園區。'],tags:['高雄景點','舊倉庫再利用','藝術展覽與市集'],common:'和華山、松山文創園區一樣，都是由舊產業空間轉型而成的藝文展覽與活動場域。',related:['華山1914文創園區','松山文創園區','台中文化創意產業園區']},
+  {id:'dragon-mountain',answer:'龍山寺',aliases:['艋舺龍山寺','艋舺龍山寺'],wiki:'艋舺龍山寺',category:'風景地標',emoji:'🏯',clues:['它位於台北市萬華區。','是歷史悠久的民間信仰中心。','建築有精緻的屋頂、龍柱與雕刻。','主祀觀世音菩薩，也供奉多位神明。','答案是台北非常有名、名字有「龍」的寺廟。'],tags:['台灣古蹟寺廟','民間信仰','傳統廟宇建築'],common:'和大龍峒保安宮、艋舺清水巖一樣，都是台北具有歷史與信仰意義的傳統寺廟。',related:['大龍峒保安宮','艋舺清水巖','行天宮']},
+  {id:'kaomei',answer:'高美濕地',aliases:['高美濕地景觀橋','台中高美濕地'],wiki:'高美濕地',category:'風景地標',emoji:'🌾',clues:['它位於台灣西部海線。','是很受歡迎的自然生態景點。','退潮時常能看到大片泥灘與倒影。','有一條木棧道可以讓遊客走近潮間帶。','它的名字有「高美」，是台中海邊的濕地。'],tags:['台灣濕地生態','潮間帶','夕陽倒影'],common:'和七股潟湖、四草綠色隧道一樣，都是台灣西部沿海重要的濕地與生態觀光景點。',related:['七股潟湖','四草綠色隧道','香山濕地']},
+  // 交通生活
+  {id:'hsr',answer:'台灣高鐵',aliases:['台灣高速鐵路','高鐵','臺灣高鐵'],wiki:'台灣高速鐵路',category:'交通生活',emoji:'🚄',clues:['它讓台灣西部城市之間的移動更快速。','列車外觀以白色為主，常有橘色線條。','採用高速鐵路系統，最高營運速度可達 300 公里／小時。','從台北出發可以一路往南到高雄左營。','它的簡稱是「高鐵」。'],tags:['台灣大眾運輸','高速鐵路','西部走廊'],common:'和台鐵、捷運一樣，都是台灣大眾運輸的一環，但它主要負責西部城際快速運輸。',related:['台灣鐵路','台北捷運','機場捷運']},
+  {id:'easycard',answer:'悠遊卡',aliases:['EasyCard','悠遊卡片'],wiki:'悠遊卡',category:'交通生活',emoji:'💳',clues:['它是一種可以放在錢包或卡套裡的小卡片。','在台灣很多城市都用得到。','搭乘大眾運輸時，常常只要感應一下。','也能在部分便利商店、小額消費場合使用。','它的名字有「悠遊」，是台灣常見電子票證。'],tags:['台灣電子票證','交通支付','小額感應付款'],common:'和一卡通、愛金卡一樣，都是台灣常見電子票證，可用於交通或部分小額支付。',related:['一卡通','愛金卡','信用卡感應支付']},
+  {id:'youbike',answer:'YouBike',aliases:['ubike','YouBike微笑單車','微笑單車'],wiki:'YouBike微笑單車',category:'交通生活',emoji:'🚲',clues:['它是一種公共運輸的延伸服務。','車站通常設在捷運站、學校或路口附近。','可以透過手機或票卡租借。','使用者騎乘後要在站點歸還。','它是台灣很常見的公共自行車，英文名稱有 Bike。'],tags:['台灣公共自行車','綠色運輸','短程接駁'],common:'和捷運、公車一樣，常用來完成城市短程移動；也能補足大眾運輸站點之間的距離。',related:['台北捷運','市區公車','共享機車']},
+  {id:'metro',answer:'台北捷運',aliases:['北捷','台北捷運系統','臺北捷運'],wiki:'臺北捷運',category:'交通生活',emoji:'🚇',clues:['它是台灣首都圈重要的大眾運輸工具。','路線圖上有不同顏色的線。','進站前通常要刷卡或使用代幣。','有些路線會經過地下，有些路段則在高架上行駛。','大家常簡稱它為「北捷」。'],tags:['台灣城市交通','軌道運輸','路線轉乘'],common:'和高雄捷運、桃園機場捷運一樣，都是台灣都會區的軌道運輸系統。',related:['高雄捷運','桃園機場捷運','台中捷運']},
+  {id:'taiwan-rail',answer:'台鐵',aliases:['台灣鐵路','臺鐵','台灣鐵路公司','臺灣鐵路公司'],wiki:'國營臺灣鐵路股份有限公司',category:'交通生活',emoji:'🚆',clues:['它的路線沿著台灣本島環繞。','除了通勤，也能搭乘它進行城際旅行。','有區間車、自強號等不同車種。','車站常見月台、平交道與鐵軌。','它的簡稱是兩個字，第一個字是「台」。'],tags:['台灣鐵道','環島鐵路','通勤與城際運輸'],common:'和高鐵一樣提供城際運輸，但路線更深入許多地方，也服務不少沿線小站。',related:['台灣高鐵','阿里山林業鐵路','集集線']},
+  {id:'receipt',answer:'統一發票',aliases:['發票','台灣統一發票','電子發票'],wiki:'統一發票',category:'交通生活',emoji:'🧾',clues:['在台灣消費時，常常會拿到它。','傳統形式是一張長長的紙。','現在也能存在手機載具裡。','每兩個月會有一次開獎活動。','大家最常做的事，就是對號碼看看有沒有中獎。'],tags:['台灣消費文化','購物憑證','定期對獎'],common:'和載具條碼、悠遊卡記名一樣，常與台灣日常消費和電子化服務有關。',related:['雲端發票','手機條碼載具','愛心碼']},
+  {id:'nightmarket',answer:'夜市',aliases:['台灣夜市','夜市攤販'],wiki:'夜市',category:'交通生活',emoji:'🏮',clues:['它通常在傍晚到晚上最熱鬧。','裡面不只有吃的，也常有遊戲和生活用品。','人們會邊走邊逛、邊吃東西。','台灣很多城市都有很有名的代表性地點。','它的名字就是「夜晚」加上「市集」。'],tags:['台灣庶民文化','小吃與遊戲','夜間市集'],common:'和傳統市場、假日市集一樣，都是人潮聚集、販售食物與生活用品的市集形式；夜間營業是其特色。',related:['士林夜市','逢甲夜市','六合夜市']},
+  // 民俗文化
+  {id:'mazu',answer:'媽祖',aliases:['天上聖母','天后聖母','媽祖婆'],wiki:'媽祖',category:'民俗文化',emoji:'🙏',clues:['祂是台灣非常重要的民間信仰神祇。','許多沿海居民與漁民會向祂祈求平安。','農曆三月常有盛大的祝壽與進香活動。','遶境時常見神轎、陣頭和大量信眾。','大家常尊稱祂為「天上聖母」。'],tags:['台灣民間信仰','海上守護神','進香與遶境'],common:'和王爺、城隍一樣，是台灣民間信仰的重要神祇；各地常有廟宇、祭典與遶境活動。',related:['五府千歲','城隍爺','保生大帝']},
+  {id:'palankeen',answer:'神轎',aliases:['轎子','神明轎','神轎'],wiki:'神轎',category:'民俗文化',emoji:'🏮',clues:['它常出現在台灣廟會或遶境隊伍中。','通常需要多人一起抬著行走。','上面會安奉神明或神明象徵。','隊伍行進時可能伴隨鑼鼓、鞭炮或陣頭。','它是用來迎請、奉迎神明的轎子。'],tags:['台灣廟會文化','遶境祭典','傳統民俗器具'],common:'和令旗、香擔一樣，常是台灣廟會遶境隊伍中的重要器物，具有奉神與儀式功能。',related:['令旗','香擔','八抬大轎']},
+  {id:'temple-fair',answer:'廟會',aliases:['廟會活動','廟宇慶典'],wiki:'廟會',category:'民俗文化',emoji:'🥁',clues:['它常在廟宇重要節日或神明聖誕時舉辦。','活動可能持續好幾天，街道也會變得熱鬧。','常見陣頭、鑼鼓、神轎和各種攤販。','不同地方有不同的祭典流程與特色。','它的名字就是寺廟舉辦的集會與慶典。'],tags:['台灣民俗活動','神明聖誕','陣頭與遶境'],common:'和進香、遶境一樣，是台灣民間信仰的公共活動，常結合宗教儀式、表演與地方社群。',related:['進香','遶境','迎王祭']},
+  {id:'eight-generals',answer:'八家將',aliases:['家將','八將','八家將陣'],wiki:'八家將',category:'民俗文化',emoji:'🎭',clues:['它是台灣廟會常見的陣頭之一。','成員會穿著特殊服飾、臉上畫有鮮明臉譜。','隊伍通常有固定角色與步法。','表演常伴隨鑼鼓，具有護駕與驅邪等象徵。','它的名稱有「八」，不是一般舞蹈團體。'],tags:['台灣陣頭文化','傳統臉譜','廟會表演'],common:'和官將首、宋江陣一樣，都是台灣廟會中具有角色、服飾與隊形特色的傳統陣頭。',related:['官將首','宋江陣','舞龍舞獅']},
+  {id:'qizai',answer:'茄芷袋',aliases:['茄芷袋','菜市場袋','台灣茄芷袋'],wiki:'茄芷袋',category:'民俗文化',emoji:'👜',clues:['它是台灣很有代表性的日常用品。','常見紅、藍、綠等鮮豔配色。','材質通常是塑膠編織，耐用又能裝東西。','以前常在市場、雜貨店或搬運物品時看到。','它是台灣人熟悉的那種彩色編織購物袋。'],tags:['台灣生活記憶','市場文化','塑膠編織袋'],common:'和藍白拖、鐵窗花一樣，是台灣日常生活中具有辨識度的物件，也常被視為在地文化符號。',related:['藍白拖','鐵窗花','玻璃彈珠']},
+  {id:'blue-slippers',answer:'藍白拖',aliases:['藍白拖鞋','藍白拖'],wiki:'藍白拖',category:'民俗文化',emoji:'🩴',clues:['它是台灣很常見的日常穿著用品。','外型簡單，價格通常不高。','常常在家門口、巷弄或海邊看得到。','最有辨識度的地方是藍色鞋底搭配白色鞋面。','答案就是台灣人熟悉的藍白色夾腳拖鞋。'],tags:['台灣日常用品','庶民生活文化','藍白配色'],common:'和茄芷袋、塑膠椅一樣，是台灣日常生活中常見的庶民用品，也常被拿來代表在地生活感。',related:['茄芷袋','塑膠椅','藍白拖鞋']},
+  {id:'rice-cooker',answer:'大同電鍋',aliases:['電鍋','大同電鍋'],wiki:'大同電鍋',category:'民俗文化',emoji:'🍚',clues:['它是台灣家庭廚房常見的家電。','外觀常見圓筒狀金屬機身。','除了煮飯，也能蒸魚、蒸蛋或加熱食物。','使用時常會在外鍋加水，再按下開關。','它有一個很有名的品牌名稱，常被叫作「大同」。'],tags:['台灣家庭記憶','廚房家電','蒸煮加熱'],common:'和保溫瓶、快煮壺一樣，是台灣家庭常見的實用家電；大同電鍋尤其有跨世代的生活記憶。',related:['快煮壺','電子鍋','保溫瓶']},
+  {id:'betel-nut',answer:'檳榔攤',aliases:['檳榔攤子','檳榔店'],wiki:'檳榔',category:'民俗文化',emoji:'🏪',clues:['它常出現在台灣道路旁。','店面可能有很醒目的燈光或透明展示窗。','主要販售一種嚼食用的果實及相關商品。','部分店家會有俗稱「檳榔西施」的歷史現象。','它是路邊常見、以販售檳榔為主的小店。'],tags:['台灣街頭景象','路邊小店','地方商業文化'],common:'和機車行、傳統柑仔店一樣，常被視為台灣街頭生活景觀的一部分，但販售商品與文化背景不同。',related:['柑仔店','機車行','傳統雜貨店']},
+  {id:'lantern',answer:'天燈',aliases:['平溪天燈','放天燈'],wiki:'天燈',category:'民俗文化',emoji:'🏮',clues:['它常和台灣北部一個山城觀光活動連在一起。','人們會先在紙面寫下願望。','點火後會慢慢升向天空。','每年元宵節附近常有大型活動。','它是平溪很有名、會飛上天空的燈。'],tags:['台灣節慶文化','平溪觀光','祈福許願'],common:'和蜂炮、鹽水蜂炮一樣，是台灣具有地方特色的節慶活動，但它以許願與放飛為主要特色。',related:['鹽水蜂炮','平溪老街','元宵燈會']}
+];
+
+const $ = id => document.getElementById(id);
+const state = {category:'全部',item:null,remaining:5,revealed:1,wrong:[],score:0,round:0,used:new Set(),solved:false,meta:null,loading:false,lastId:null};
+const blurValues = [27,21,15,9,3,0];
+const wikiCache = new Map();
+let toastTimer;
+
+function normalize(s){return String(s||'').toLowerCase().replace(/臺/g,'台').replace(/[\s　·、，。！？!?,.（）()「」『』：:＿_\-]/g,'').replace(/臺/g,'台');}
+function acceptedGuess(value,item){const v=normalize(value);if(!v)return false;return [item.answer,...item.aliases].some(a=>normalize(a)===v);}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2300);}
+function setFeedback(message,type=''){const el=$('feedback');el.textContent=message;el.className='feedback'+(type?' '+type:'');}
+function updateStats(){ $('score').textContent=state.score;let best=0;try{best=Number(localStorage.getItem('taiwanGuessBest')||0)}catch(e){}$('best').textContent=best;$('roundLabel').textContent='ROUND '+String(state.round).padStart(2,'0');$('poolCount').textContent=`目前題庫 ${BANK.length} 題` }
+function chooseQuestion(){
+  let pool=BANK.filter(x=>state.category==='全部'||x.category===state.category);
+  if(!pool.length)pool=BANK;
+  let remaining=pool.filter(x=>!state.used.has(x.id));
+  if(!remaining.length){state.used.clear();remaining=pool;toast('這個分類已經全部玩過，重新洗牌！');}
+  if(remaining.length>1)remaining=remaining.filter(x=>x.id!==state.lastId);
+  const item=remaining[Math.floor(Math.random()*remaining.length)];state.used.add(item.id);state.lastId=item.id;return item;
+}
+function drawLives(){
+  $('lives').innerHTML=Array.from({length:5},(_,i)=>`<i class="life ${i<state.remaining?'on':''}"></i>`).join('');
+  $('attemptText').textContent=`還有 ${state.remaining} 次機會`;
+  $('clueProgress').textContent=`已公開 ${state.revealed} / 5 個線索`;
+  $('clarityBars').innerHTML=Array.from({length:5},(_,i)=>`<i class="${state.solved||i<=Math.min(4,5-state.remaining)?'on':''}"></i>`).join('');
+  const blur=state.solved?0:blurValues[5-state.remaining];$('questionImage').style.filter=`blur(${blur}px)`;$('questionImage').style.transform=`scale(${blur?1.13:1.02})`;
+  $('photoStatus').textContent=blur===0?'圖片完全清晰':`清晰度 ${6-state.remaining} / 5`;
+}
+function renderClues(){
+  const clues=state.item.clues;
+  $('clueList').innerHTML=clues.map((c,i)=>i<state.revealed?`<div class="clue"><span class="clue-num">${i+1}</span><span>${escapeHTML(c)}</span></div>`:`<div class="hidden-clue">🔒 第 ${i+1} 個線索尚未公開</div>`).join('');
+  $('clueProgress').textContent=`已公開 ${state.revealed} / 5 個線索`;
+}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+async function wikiRequest(title){
+  const url=new URL('https://zh.wikipedia.org/w/api.php');
+  Object.entries({action:'query',format:'json',origin:'*',redirects:'1',prop:'pageimages|extracts',exintro:'1',explaintext:'1',piprop:'thumbnail|name',pithumbsize:'1000',titles:title}).forEach(([k,v])=>url.searchParams.set(k,v));
+  const response=await fetch(url);
+  if(!response.ok)throw new Error('Wikipedia API 回應失敗');
+  const data=await response.json();if(data.error)throw new Error(data.error.info||'Wikipedia API 錯誤');
+  const pages=Object.values(data.query?.pages||{});return pages.find(p=>!p.missing)||pages[0]||null;
+}
+async function commonsImage(title){
+  const url=new URL('https://commons.wikimedia.org/w/api.php');
+  Object.entries({action:'query',format:'json',origin:'*',generator:'search',gsrsearch:title+' Taiwan',gsrnamespace:'6',gsrlimit:'6',prop:'imageinfo',iiprop:'url',iiurlwidth:'1000'}).forEach(([k,v])=>url.searchParams.set(k,v));
+  const response=await fetch(url);if(!response.ok)throw new Error('Commons API 回應失敗');const data=await response.json();
+  const pages=Object.values(data.query?.pages||{});const candidate=pages.find(p=>p.imageinfo?.[0]?.thumburl)||pages[0];
+  const imageUrl=candidate?.imageinfo?.[0]?.thumburl||candidate?.imageinfo?.[0]?.url||'';
+  return imageUrl?{url:imageUrl,fileTitle:(candidate.title||'').replace(/^File:/,'')}:null;
+}
+async function loadWiki(item){
+  if(wikiCache.has(item.id))return wikiCache.get(item.id);
+  let page=null,usedTitle=item.wiki;
+  try{page=await wikiRequest(item.wiki);if(!page?.extract){
+    const searchUrl=new URL('https://zh.wikipedia.org/w/api.php');
+    Object.entries({action:'query',format:'json',origin:'*',list:'search',srsearch:item.wiki,srlimit:'1'}).forEach(([k,v])=>searchUrl.searchParams.set(k,v));
+    const sr=await fetch(searchUrl).then(r=>r.json());const found=sr.query?.search?.[0]?.title;if(found){usedTitle=found;page=await wikiRequest(found);}
+  }}catch(e){console.warn('Wikipedia lookup:',e)}
+  let image=page?.thumbnail?.source||'';let imageFile=page?.pageimage||'';
+  if(!image){try{const commons=await commonsImage(item.wiki);if(commons){image=commons.url;imageFile=commons.fileTitle;}}catch(e){console.warn('Commons image lookup:',e)}}
+  const title=page?.title||usedTitle;
+  const pageUrl=page?.fullurl||`https://zh.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g,'_'))}`;
+  const fileUrl=imageFile?`https://commons.wikimedia.org/wiki/File:${encodeURIComponent(imageFile.replace(/ /g,'_'))}`:'';
+  const meta={image,extract:(page?.extract||'目前沒有取得這個主題的百科摘要，仍可正常遊戲。').replace(/\s+/g,' ').slice(0,420),pageUrl,fileUrl,title};
+  wikiCache.set(item.id,meta);return meta;
+}
+function setPhoto(image){
+  const img=$('questionImage');img.classList.remove('loaded');img.onload=()=>{img.classList.add('loaded');$('photoPlaceholder').style.display='none';$('sourceState').textContent='圖片已載入';};img.onerror=()=>{img.classList.remove('loaded');$('photoPlaceholder').style.display='grid';$('photoPlaceholder').innerHTML=`<span class="emoji">🧩</span><p>這題暫時找不到可用圖片<br>可以繼續依照文字線索猜答案</p>`;$('sourceState').textContent='圖片載入失敗';};
+  if(image){img.src=image;}else{$('photoPlaceholder').style.display='grid';$('photoPlaceholder').innerHTML=`<span class="emoji">${state.item.emoji}</span><p>目前找不到圖片，請用線索挑戰！</p>`;$('sourceState').textContent='以文字線索進行';}
+}
+async function startRound(){
+  state.item=chooseQuestion();state.remaining=5;state.revealed=1;state.wrong=[];state.solved=false;state.meta=null;state.loading=true;state.round++;
+  $('result').classList.remove('show');$('nextButton').style.display='none';$('giveUp').style.display='inline-block';$('guessButton').disabled=false;$('guessInput').disabled=false;$('guessInput').value='';$('guessInput').focus();
+  $('photoCategory').textContent=state.item.category;$('photoPlaceholder').style.display='grid';$('photoPlaceholder').innerHTML=`<span class="emoji">${state.item.emoji}</span><p>正在從網路取得本題圖片…</p>`;$('sourceState').textContent='連線 Wikimedia…';$('questionImage').classList.remove('loaded');$('questionImage').removeAttribute('src');
+  setFeedback('提示：可以猜地名、食物、交通工具或台灣特色物品。');$('wrongList').innerHTML='';renderClues();drawLives();updateStats();
+  try{const meta=await loadWiki(state.item);if(state.item&&state.item.id===state.lastId){state.meta=meta;setPhoto(meta.image);}}
+  catch(e){console.warn(e);$('sourceState').textContent='網路連線不穩';$('photoPlaceholder').innerHTML=`<span class="emoji">${state.item.emoji}</span><p>網路資料暫時無法載入<br>仍可繼續猜謎</p>`;}
+  state.loading=false;
+}
+function finishRound(won,reason=''){
+  if(state.solved)return;state.solved=true;$('questionImage').style.filter='blur(0px)';$('questionImage').style.transform='scale(1.02)';$('photoStatus').textContent='圖片完全清晰';$('clarityBars').innerHTML='<i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>';
+  $('attemptText').textContent=won?'成功猜中！':'本題結束';$('guessButton').disabled=true;$('guessInput').disabled=true;$('giveUp').style.display='none';$('nextButton').style.display='inline-block';
+  if(won){state.score++;try{let best=Number(localStorage.getItem('taiwanGuessBest')||0);if(state.score>best)localStorage.setItem('taiwanGuessBest',String(state.score));}catch(e){}}
+  $('resultStatus').textContent=won?'🎉 答對了！':'💡 答案揭曉';$('answerTitle').textContent=state.item.answer;
+  $('wikiExtract').textContent=state.meta?.extract||'百科資料目前無法連線，以下相似點由題庫整理。';
+  $('similarTags').innerHTML=state.item.tags.map(t=>`<span class="similar-tag">${escapeHTML(t)}</span>`).join('');
+  $('relatedText').textContent=`共同特徵：${state.item.common} 相似事物：${state.item.related.join('、')}。`;
+  const links=[];if(state.meta?.pageUrl)links.push(`<a href="${escapeHTML(state.meta.pageUrl)}" target="_blank" rel="noopener">查看百科文字來源 ↗</a>`);if(state.meta?.fileUrl)links.push(`<a href="${escapeHTML(state.meta.fileUrl)}" target="_blank" rel="noopener">查看圖片原始檔與授權 ↗</a>`);$('resultLinks').innerHTML=links.join('');
+  $('result').classList.add('show');setFeedback(won?'太厲害了！你成功找出答案。':reason||'這題有點難度，下一題再挑戰！',won?'good':'');drawLives();updateStats();
+}
+function submitGuess(value){
+  if(state.solved||state.loading)return;const guess=String(value||'').trim();if(!guess){setFeedback('先輸入一個答案再送出喔。','bad');return;}
+  if(acceptedGuess(guess,state.item)){finishRound(true);return;}
+  state.remaining--;state.revealed=Math.min(5,state.revealed+1);state.wrong.push(guess);$('wrongList').innerHTML=state.wrong.map(w=>`<span class="wrong-tag">✕ ${escapeHTML(w)}</span>`).join('');renderClues();drawLives();$('guessInput').value='';
+  if(state.remaining<=0){finishRound(false,'五次機會用完了，看看這題的答案與相似點！');return;}
+  setFeedback(`「${guess}」不太對，再想想！已解鎖第 ${state.revealed} 個線索。`,'bad');$('guessInput').focus();
+}
+$('guessForm').addEventListener('submit',e=>{e.preventDefault();submitGuess($('guessInput').value)});
+$('giveUp').addEventListener('click',()=>finishRound(false,'你選擇揭曉答案，下一題再挑戰！'));
+$('nextButton').addEventListener('click',startRound);
+document.querySelectorAll('.cat').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.cat').forEach(b=>b.classList.remove('active'));btn.classList.add('active');state.category=btn.dataset.category;state.used.clear();startRound();}));
+updateStats();startRound();
+</script>
+</body>
+</html>
